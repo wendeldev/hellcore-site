@@ -5,7 +5,6 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { q } from '@/lib/db';
 import Shell from '@/components/Shell';
 import { Flame } from '@/components/Brand';
-import { HELLCORE_APK } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +36,7 @@ export default async function Downloads() {
           </div>
           {a.id === 'root'
             ? <span className="pill ink">Em breve</span>
-            : <a className="btn sm primary" href={HELLCORE_APK} target="_blank" rel="noopener">Baixar</a>}
+            : <a className="btn sm primary" href="/api/download/hellcore">Baixar</a>}
         </div>
       )) : <p className="muted">Você ainda não tem downloads. Compre o HELLCORE em <Link className="pill ink" href="/apps">Aplicativos</Link>.</p>}
     </Shell>
