@@ -3,6 +3,10 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { supabaseServer } from '@/lib/supabaseServer';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
+const FALLBACK = {
+  hellcore: { id: 'hellcore', name: 'HELLCORE', price_cents: 890, is_free: false },
+};
+
 function siteUrl(request) {
   return process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
 }
@@ -15,8 +19,13 @@ export async function POST(request) {
     const user = auth?.user;
     if (!user) return NextResponse.json({ error: 'Faça login primeiro.' }, { status: 401 });
 
-    const db = supabaseAdmin();
-    const { data: app } = await db.from('apps').select('*').eq('id', appId).single();
+    let app = null;
+    try {
+      const db = supabaseAdmin();
+      const r = await db.from('apps').select('*').eq('id', appId).maybeSingle();
+      app = r.data;
+    } catch (e) {}
+    if (!app) app = FALLBACK[appId] || null;
     if (!app) return NextResponse.json({ error: 'App não encontrado.' }, { status: 404 });
     if (app.is_free || !app.price_cents) return NextResponse.json({ error: 'Este app é gratuito.' }, { status: 400 });
 
