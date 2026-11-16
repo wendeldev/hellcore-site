@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { currentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
-import { money, dateBR } from '@/lib/format';
+import { q } from '@/lib/db';
+import { dateBR } from '@/lib/format';
 import Shell from '@/components/Shell';
 
 export const dynamic = 'force-dynamic';
@@ -11,14 +12,10 @@ export default async function Inicio() {
   const user = await currentUser();
   if (!user) redirect('/entrar');
   const db = supabaseAdmin();
-  const { data: purchases = [] } = await db
-    .from('purchases').select('*, apps(name)').eq('user_id', user.id).eq('status', 'paid')
-    .order('created_at', { ascending: false });
-  const { data: devices = [] } = await db
-    .from('devices').select('*').eq('user_id', user.id).eq('active', true);
+  const purchases = await q(db.from('purchases').select('*, apps(name)').eq('user_id', user.id).eq('status', 'paid').order('created_at', { ascending: false }), []);
+  const devices = await q(db.from('devices').select('*').eq('user_id', user.id).eq('active', true), []);
   const device = devices[0];
   const hasLic = purchases.length > 0;
-
   return (
     <Shell user={user} isAdmin={user.is_admin} active="inicio">
       <div>

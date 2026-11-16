@@ -2,18 +2,25 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { currentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { q } from '@/lib/db';
 import { money } from '@/lib/format';
 import Shell from '@/components/Shell';
 import { Flame } from '@/components/Brand';
 
 export const dynamic = 'force-dynamic';
 
+const FALLBACK = [
+  { id: 'hellcore', name: 'HELLCORE', tagline: 'Perfis de desempenho para jogos', price_cents: 890, is_free: false },
+  { id: 'root', name: 'Root (instalador)', tagline: 'Ferramenta de root — grátis', price_cents: 0, is_free: true },
+];
+
 export default async function Apps() {
   const user = await currentUser();
   if (!user) redirect('/entrar');
   const db = supabaseAdmin();
-  const { data: apps = [] } = await db.from('apps').select('*').eq('active', true).order('is_free');
-  const { data: mine = [] } = await db.from('purchases').select('app_id').eq('user_id', user.id).eq('status', 'paid');
+  let apps = await q(db.from('apps').select('*').eq('active', true).order('is_free'), []);
+  if (!apps.length) apps = FALLBACK;
+  const mine = await q(db.from('purchases').select('app_id').eq('user_id', user.id).eq('status', 'paid'), []);
   const owned = new Set(mine.map((m) => m.app_id));
   return (
     <Shell user={user} isAdmin={user.is_admin} active="apps">

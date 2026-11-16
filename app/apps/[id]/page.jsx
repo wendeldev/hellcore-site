@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { currentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { q } from '@/lib/db';
 import { money } from '@/lib/format';
 import Shell from '@/components/Shell';
 import { Flame } from '@/components/Brand';
@@ -9,13 +10,19 @@ import BuyButton from '@/components/BuyButton';
 
 export const dynamic = 'force-dynamic';
 
+const FALLBACK = {
+  hellcore: { id: 'hellcore', name: 'HELLCORE', tagline: 'Perfis de desempenho para jogos', price_cents: 890, is_free: false, version: '3.4' },
+  root: { id: 'root', name: 'Root (instalador)', tagline: 'Ferramenta de root — grátis', price_cents: 0, is_free: true },
+};
+
 export default async function Produto({ params }) {
   const user = await currentUser();
   if (!user) redirect('/entrar');
   const db = supabaseAdmin();
-  const { data: a } = await db.from('apps').select('*').eq('id', params.id).single();
+  let a = await q(db.from('apps').select('*').eq('id', params.id).single(), null);
+  if (!a) a = FALLBACK[params.id] || null;
   if (!a) notFound();
-  const { data: mine = [] } = await db.from('purchases').select('id').eq('user_id', user.id).eq('app_id', a.id).eq('status', 'paid');
+  const mine = await q(db.from('purchases').select('id').eq('user_id', user.id).eq('app_id', a.id).eq('status', 'paid'), []);
   const owned = mine.length > 0;
 
   if (a.is_free) {

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { q } from '@/lib/db';
 import Shell from '@/components/Shell';
 import UnbindButton from '@/components/UnbindButton';
 
@@ -10,7 +11,7 @@ export default async function Aparelhos() {
   const user = await currentUser();
   if (!user) redirect('/entrar');
   const db = supabaseAdmin();
-  const { data: devices = [] } = await db.from('devices').select('*').eq('user_id', user.id).eq('active', true);
+  const devices = await q(db.from('devices').select('*').eq('user_id', user.id).eq('active', true), []);
   return (
     <Shell user={user} isAdmin={user.is_admin} active="aparelhos">
       <div><p className="eyebrow">Aparelhos</p><h1 className="h-lg" style={{ marginTop: 6 }}>Seus aparelhos</h1></div>

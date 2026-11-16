@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { currentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { q } from '@/lib/db';
 import Shell from '@/components/Shell';
 import CatalogEditor from '@/components/CatalogEditor';
 
@@ -12,15 +13,16 @@ export default async function Admin() {
   if (!user) redirect('/entrar');
   if (!user.is_admin) redirect('/');
   const db = supabaseAdmin();
-  const { data: tickets = [] } = await db.from('tickets').select('*').order('created_at', { ascending: false }).limit(100);
-  const { data: apps = [] } = await db.from('apps').select('*').order('is_free');
-  const { count } = await db.from('purchases').select('*', { count: 'exact', head: true }).eq('status', 'paid');
+  const tickets = await q(db.from('tickets').select('*').order('created_at', { ascending: false }).limit(100), []);
+  const apps = await q(db.from('apps').select('*').order('is_free'), []);
+  let count = 0;
+  try { const r = await db.from('purchases').select('*', { count: 'exact', head: true }).eq('status', 'paid'); count = r.count || 0; } catch (e) {}
   return (
     <Shell user={user} isAdmin active="inicio">
       <div className="between"><div><p className="eyebrow">Administrador</p><h1 className="h-lg" style={{ marginTop: 6 }}>Painel</h1></div>
         <Link className="btn sm ghost" href="/">Sair do painel</Link></div>
       <div className="grid2">
-        <div className="stat"><div className="k">Licenças pagas</div><div className="v">{count || 0}</div></div>
+        <div className="stat"><div className="k">Licenças pagas</div><div className="v">{count}</div></div>
         <div className="stat"><div className="k">Diagnósticos</div><div className="v">{tickets.length}</div></div>
       </div>
       <section className="card">
@@ -33,7 +35,7 @@ export default async function Admin() {
           </details>
         )) : <p className="muted">Nenhum diagnóstico recebido ainda.</p>}
       </section>
-      <CatalogEditor apps={apps} />
+      {apps.length > 0 && <CatalogEditor apps={apps} />}
       <section className="card"><h2 className="h-md" style={{ marginBottom: 8 }}>Enviar APK</h2>
         <p className="muted">O envio e a hospedagem dos APKs entram na próxima etapa (armazenamento com link por licença). Por enquanto, o download aponta para a versão pública.</p></section>
     </Shell>

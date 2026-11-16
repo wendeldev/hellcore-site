@@ -2,18 +2,25 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { currentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { q } from '@/lib/db';
 import Shell from '@/components/Shell';
 import { Flame } from '@/components/Brand';
 import { HELLCORE_APK } from '@/lib/constants';
 
 export const dynamic = 'force-dynamic';
 
+const FALLBACK = [
+  { id: 'hellcore', name: 'HELLCORE', is_free: false, version: '3.4' },
+  { id: 'root', name: 'Root (instalador)', is_free: true, version: null },
+];
+
 export default async function Downloads() {
   const user = await currentUser();
   if (!user) redirect('/entrar');
   const db = supabaseAdmin();
-  const { data: apps = [] } = await db.from('apps').select('*').eq('active', true);
-  const { data: mine = [] } = await db.from('purchases').select('app_id').eq('user_id', user.id).eq('status', 'paid');
+  let apps = await q(db.from('apps').select('*').eq('active', true), []);
+  if (!apps.length) apps = FALLBACK;
+  const mine = await q(db.from('purchases').select('app_id').eq('user_id', user.id).eq('status', 'paid'), []);
   const owned = new Set(mine.map((m) => m.app_id));
   const list = apps.filter((a) => a.is_free || owned.has(a.id));
   return (

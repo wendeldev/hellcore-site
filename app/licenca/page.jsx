@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { currentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { q } from '@/lib/db';
 import { dateBR } from '@/lib/format';
 import Shell from '@/components/Shell';
 
@@ -11,8 +12,8 @@ export default async function Licenca() {
   const user = await currentUser();
   if (!user) redirect('/entrar');
   const db = supabaseAdmin();
-  const { data: p } = await db.from('purchases').select('*').eq('user_id', user.id).eq('app_id', 'hellcore').eq('status', 'paid').maybeSingle();
-  const { data: devices = [] } = await db.from('devices').select('name').eq('user_id', user.id).eq('active', true);
+  const p = await q(db.from('purchases').select('*').eq('user_id', user.id).eq('app_id', 'hellcore').eq('status', 'paid').maybeSingle(), null);
+  const devices = await q(db.from('devices').select('name').eq('user_id', user.id).eq('active', true), []);
   if (!p) {
     return (
       <Shell user={user} isAdmin={user.is_admin} active="licenca">

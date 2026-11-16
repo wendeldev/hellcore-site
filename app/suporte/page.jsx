@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { currentUser } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { q } from '@/lib/db';
 import { dateBR } from '@/lib/format';
 import Shell from '@/components/Shell';
 import SupportForm from '@/components/SupportForm';
@@ -11,7 +12,7 @@ export default async function Suporte() {
   const user = await currentUser();
   if (!user) redirect('/entrar');
   const db = supabaseAdmin();
-  const { data: tickets = [] } = await db.from('tickets').select('id, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false });
+  const tickets = await q(db.from('tickets').select('id, status, created_at').eq('user_id', user.id).order('created_at', { ascending: false }), []);
   return (
     <Shell user={user} isAdmin={user.is_admin} active="suporte">
       <div><p className="eyebrow">Suporte</p><h1 className="h-lg" style={{ marginTop: 6 }}>Enviar diagnóstico</h1>
