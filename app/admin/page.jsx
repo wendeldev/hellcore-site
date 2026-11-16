@@ -5,6 +5,7 @@ import { supabaseAdmin } from '@/lib/supabaseAdmin';
 import { q } from '@/lib/db';
 import Shell from '@/components/Shell';
 import CatalogEditor from '@/components/CatalogEditor';
+import ApkUploader from '@/components/ApkUploader';
 import TestGrant from '@/components/TestGrant';
 
 export const dynamic = 'force-dynamic';
@@ -37,9 +38,8 @@ export default async function Admin() {
         )) : <p className="muted">Nenhum diagnóstico recebido ainda.</p>}
       </section>
       {apps.length > 0 && <CatalogEditor apps={apps} />}
+      {apps.length > 0 && <ApkUploader apps={apps} />}
       <TestGrant />
-      <section className="card"><h2 className="h-md" style={{ marginBottom: 8 }}>Enviar APK</h2>
-        <p className="muted">O envio e a hospedagem dos APKs entram na próxima etapa (armazenamento com link por licença). Por enquanto, o download aponta para a versão pública.</p></section>
     </Shell>
   );
 }
