@@ -88,17 +88,9 @@ export default async function Produto({ params }) {
               <li>Não fixa CPU/GPU — isso exige root.</li>
             </ul>
           </div>
-          <div>
-            <div className="row" style={{ gap: 8, marginBottom: 6 }}>
-              <span className="pill warn">Sem root — Shizuku</span>
-              <span className="faint" style={{ fontSize: 12 }}>em breve</span>
-            </div>
-            <ul className="clean">
-              <li>Tudo do Modo Leve <b style={{ color: 'var(--fg)' }}>mais</b> o destrave de 120 FPS (Xiaomi) e fechar apps em segundo plano, sem root.</li>
-              <li>Também não fixa CPU/GPU (só o root faz isso).</li>
-            </ul>
-          </div>
-        </div></section>
+        </div>
+        <hr className="divider" />
+        <p className="faint" style={{ fontSize: 12.5 }}>Para a experiência completa (Eco, Moderado e Extremo), o aparelho precisa estar com root (Magisk ou KernelSU). Sem root, o Modo Leve funciona em qualquer celular.</p></section>
       {owned
         ? <p className="pill ok" style={{ alignSelf: 'center' }}>Você já tem este app</p>
         : <BuyButton appId={a.id} label={`Comprar · ${money(a.price_cents)}`} />}
