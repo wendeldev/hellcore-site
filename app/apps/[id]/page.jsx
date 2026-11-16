@@ -11,7 +11,7 @@ import BuyButton from '@/components/BuyButton';
 export const dynamic = 'force-dynamic';
 
 const FALLBACK = {
-  hellcore: { id: 'hellcore', name: 'HELLCORE', tagline: 'Perfis de desempenho para jogos', price_cents: 890, is_free: false, version: '3.4' },
+  hellcore: { id: 'hellcore', name: 'HELLCORE', tagline: 'Perfis de desempenho para jogos', price_cents: 890, is_free: false, version: '3.6' },
   root: { id: 'root', name: 'Root (instalador)', tagline: 'Ferramenta de root — grátis', price_cents: 0, is_free: true },
 };
 
@@ -47,7 +47,7 @@ export default async function Produto({ params }) {
       <div className="row wrap-f" style={{ gap: 8 }}>
         <span className="pill red">{money(a.price_cents)}</span>
         <span className="pill ink">Licença vitalícia</span>
-        <span className="pill ink">Ativação: root temporário</span>
+        <span className="pill ink">Ativação por chave</span>
         {a.version && <span className="pill ok">v{a.version}</span>}
       </div>
       <section className="card"><h2 className="h-md" style={{ marginBottom: 8 }}>Sobre o aplicativo</h2>
@@ -58,8 +58,47 @@ export default async function Produto({ params }) {
           <li>GPU no máximo e restauração automática ao fim da sessão.</li>
           <li>Licença vitalícia: pague uma vez, use sempre.</li>
         </ul></section>
-      <section className="card"><h2 className="h-md" style={{ marginBottom: 8 }}>Modo de ativação</h2>
-        <p className="muted">A ativação é por <b style={{ color: 'var(--fg)' }}>root temporário</b>, disponibilizado pelo próprio site. Os perfis de CPU/GPU exigem root; sem root, o app ainda oferece o Modo Leve.</p></section>
+      <section className="card"><h2 className="h-md" style={{ marginBottom: 8 }}>Como ativar</h2>
+        <ol className="clean" style={{ listStyle: 'decimal', paddingLeft: 20 }}>
+          <li>Depois de comprar, abra <b style={{ color: 'var(--fg)' }}>Licença</b> aqui no site e copie sua chave <code>HC-…</code>.</li>
+          <li>No app HELLCORE, cole a chave no cartão <b style={{ color: 'var(--fg)' }}>Licença</b> e toque em Ativar.</li>
+          <li>A licença fica presa a este aparelho. Para usar em outro, é só desvincular em <b style={{ color: 'var(--fg)' }}>Aparelhos</b>.</li>
+        </ol></section>
+      <section className="card"><h2 className="h-md" style={{ marginBottom: 10 }}>O que cada tipo de acesso libera</h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <div className="row" style={{ gap: 8, marginBottom: 6 }}>
+              <span className="pill red">Com root</span>
+              <span className="faint" style={{ fontSize: 12 }}>Magisk / KernelSU — experiência completa</span>
+            </div>
+            <ul className="clean">
+              <li>Modos <b style={{ color: 'var(--fg)' }}>Eco, Moderado e Extremo</b> fixando CPU e GPU.</li>
+              <li>GPU no máximo e restauração automática ao fim da sessão.</li>
+              <li>Destrave de <b style={{ color: 'var(--fg)' }}>120 FPS</b> (Xiaomi) automático e otimização pré-jogo.</li>
+            </ul>
+          </div>
+          <div>
+            <div className="row" style={{ gap: 8, marginBottom: 6 }}>
+              <span className="pill ink">Sem root — Modo Leve</span>
+              <span className="faint" style={{ fontSize: 12 }}>já incluso, sem instalar nada</span>
+            </div>
+            <ul className="clean">
+              <li>Trava a tela no <b style={{ color: 'var(--fg)' }}>máximo de Hz</b> e mantém o jogo ativo.</li>
+              <li>Silencia notificações durante a sessão. Tudo reversível.</li>
+              <li>Não fixa CPU/GPU — isso exige root.</li>
+            </ul>
+          </div>
+          <div>
+            <div className="row" style={{ gap: 8, marginBottom: 6 }}>
+              <span className="pill warn">Sem root — Shizuku</span>
+              <span className="faint" style={{ fontSize: 12 }}>em breve</span>
+            </div>
+            <ul className="clean">
+              <li>Tudo do Modo Leve <b style={{ color: 'var(--fg)' }}>mais</b> o destrave de 120 FPS (Xiaomi) e fechar apps em segundo plano, sem root.</li>
+              <li>Também não fixa CPU/GPU (só o root faz isso).</li>
+            </ul>
+          </div>
+        </div></section>
       {owned
         ? <p className="pill ok" style={{ alignSelf: 'center' }}>Você já tem este app</p>
         : <BuyButton appId={a.id} label={`Comprar · ${money(a.price_cents)}`} />}

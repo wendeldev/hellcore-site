@@ -9,7 +9,7 @@ import { Flame } from '@/components/Brand';
 export const dynamic = 'force-dynamic';
 
 const FALLBACK = [
-  { id: 'hellcore', name: 'HELLCORE', is_free: false, version: '3.4' },
+  { id: 'hellcore', name: 'HELLCORE', is_free: false, version: '3.6' },
   { id: 'root', name: 'Root (instalador)', is_free: true, version: null },
 ];
 
