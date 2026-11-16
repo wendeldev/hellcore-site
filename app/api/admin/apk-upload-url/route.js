@@ -11,15 +11,26 @@ export async function POST(request) {
     const { appId } = await request.json();
     if (!appId || !/^[a-z0-9_-]+$/i.test(appId)) return NextResponse.json({ error: 'App inválido.' }, { status: 400 });
     const db = supabaseAdmin();
-    // bucket privado (ignora erro se já existir)
-    try { await db.storage.createBucket('apks', { public: false, fileSizeLimit: '200MB' }); } catch (e) {}
+
+    // Garante o bucket privado 'apks'. Se já existe, o erro é esperado e ignorado;
+    // qualquer outro erro é informado para diagnóstico.
+    const mk = await db.storage.createBucket('apks', { public: false }).catch((e) => ({ error: e }));
+    if (mk && mk.error) {
+      const m = String(mk.error.message || mk.error || '').toLowerCase();
+      const exists = m.includes('exist') || m.includes('already') || m.includes('duplicate');
+      if (!exists) {
+        return NextResponse.json({ error: 'Storage recusou criar o balde de APKs.', detail: String(mk.error.message || mk.error) }, { status: 500 });
+      }
+    }
+
     const path = `${appId}.apk`;
-    // remove o arquivo anterior para poder assinar um novo upload
     try { await db.storage.from('apks').remove([path]); } catch (e) {}
     const { data, error } = await db.storage.from('apks').createSignedUploadUrl(path);
-    if (error || !data) return NextResponse.json({ error: 'Não foi possível preparar o envio. Verifique a chave de serviço do Supabase.' }, { status: 500 });
+    if (error || !data) {
+      return NextResponse.json({ error: 'Não foi possível preparar o envio.', detail: String((error && error.message) || 'sem dados') }, { status: 500 });
+    }
     return NextResponse.json({ ok: true, path: data.path, token: data.token });
   } catch (e) {
-    return NextResponse.json({ error: 'Erro no servidor.' }, { status: 500 });
+    return NextResponse.json({ error: 'Erro no servidor.', detail: String(e && e.message) }, { status: 500 });
   }
 }

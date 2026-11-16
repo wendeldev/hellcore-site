@@ -19,7 +19,7 @@ function Row({ app }) {
         body: JSON.stringify({ appId: app.id }),
       });
       const j1 = await r1.json();
-      if (!j1.ok) throw new Error(j1.error || 'Falha ao preparar o envio.');
+      if (!j1.ok) throw new Error((j1.error || 'Falha ao preparar o envio.') + (j1.detail ? ' [' + j1.detail + ']' : ''));
       setMsg('Enviando o APK…');
       const supabase = supabaseBrowser();
       const { error } = await supabase.storage.from('apks').uploadToSignedUrl(j1.path, j1.token, file, {
